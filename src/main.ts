@@ -82,64 +82,6 @@ const main = () => {
     };
     setTimer_loop(ms2hour(12), updateInsiderTradeAPI);
   }
-
-  // WebtoonAPI 부분
-  {
-    const webtoonWorker = pathDir("./worker/worker.webtoon.ts");
-    const updateWebtoonAPI = async () => {
-      const webtoon = new Router("webtoon");
-      const wokrer_data: Webtoon[] = await getData_from_Worker(webtoonWorker);
-      webtoon.createRouter("info", (req, res) => {
-        let webtoonInfo = wokrer_data;
-        const weeknum = req.query.weeknum;
-        const service = req.query.service;
-        if (weeknum != undefined) {
-          webtoonInfo = webtoonInfo.filter(
-            (aWebtoonInfo) => aWebtoonInfo.weekday == Number(weeknum)
-          );
-        }
-        if (service != undefined) {
-          webtoonInfo = webtoonInfo.filter(
-            (aWebtoonInfo) => aWebtoonInfo.service == service
-          );
-        }
-        res.json(webtoonInfo);
-      });
-      webtoon.createIndexRouter();
-    };
-    setTimer_loop(ms2minute(10), updateWebtoonAPI);
-  }
-
-  //Covid19API 부분
-  {
-    const covid19Worker = pathDir("./worker/worker.covid19.ts");
-    const updateCovid19API = async () => {
-      const covid19 = new Router("covid19");
-      const wokrer_data: Covid19.Final[] = await getData_from_Worker(
-        covid19Worker
-      );
-      wokrer_data.map((covidData) => {
-        covid19.createRouter(covidData.region, (req, res) => {
-          let covidInfo = covidData.data;
-          const from = req.query.from;
-          const to = req.query.to;
-          if (from != undefined) {
-            covidInfo = covidInfo.filter(
-              (data) => dateForm(data.date) >= Number(from)
-            );
-          }
-          if (to != undefined) {
-            covidInfo = covidInfo.filter(
-              (data) => dateForm(data.date) <= Number(to)
-            );
-          }
-          res.json(covidInfo);
-        });
-      });
-      covid19.createIndexRouter();
-    };
-    setTimer_loop(ms2hour(1), updateCovid19API);
-  }
 };
 //------------------------------------------------------------------------
 class Router {
